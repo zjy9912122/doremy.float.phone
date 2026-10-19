@@ -1028,11 +1028,10 @@
   padding: 20px 0 36px;
 }
 
-/* 更窄视口（≤373px）：按 390px 设计稿整体等比缩放（格 66→16.92vw、
-   距 20→5.13vw、图标 58→14.87vw、dock 354→90.77vw），窄屏呈现与正常
-   手机完全相同的比例观感，无多余留白；网格/dock 同源，天然对齐。
-   ≥374px 不受影响。 */
-@media (max-width: 373px) and (hover: none) and (pointer: coarse) {
+/* 更窄视口（≤380px，覆盖 375~376px 等主流紧凑屏）：按 390px 设计稿整体等比缩放
+   （格 66→16.92vw、距 20→5.13vw、图标 58→14.87vw、dock 354→90.77vw），
+   窄屏呈现与正常手机完全相同的比例观感，避免 Android WebView 下 pointer 判定不一致。 */
+@media (max-width: 380px) {
   .icon-grid,
   .dock {
     --slot-size: 16.92vw;
@@ -1055,8 +1054,8 @@
 }
 
 /* ── Mobile responsive ── */
-
-@media (max-width: 500px) and (hover: none) and (pointer: coarse) {
+/* 兼容 Android WebView / 华为浏览器等可能未完全暴露 pointer:coarse / hover:none 的紧凑屏环境 */
+@media (max-width: 500px), screen and (max-device-width: 500px) {
 
   /* 用户在设置里显式开启「显示系统状态栏」且运行时不在全屏时，控制器才会挂
      data-pwa-display-mode 标记（见 pwa-manifest-injector）：此时所有 App 共用系统
@@ -1085,20 +1084,26 @@
 
   :root {
     --phone-screen-width: 100vw;
-    --phone-screen-height: 100lvh;
+    /* 优先使用动态视口 dvh（适应浏览器顶部工具栏/底部导航条动态变化），
+       避免 100lvh 把内容撑出 650px 的 WebView 可见高度 */
+    --phone-screen-height: 100dvh;
   }
 
   html,
   body {
     overflow: hidden;
     width: 100%;
-    height: 100lvh;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     background: var(--c-page-body-bg);
   }
 
   .app-root {
     width: 100vw;
-    height: 100lvh;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     padding: 0;
     display: flex;
     justify-content: flex-start;
@@ -1115,6 +1120,10 @@
     --phone-frame-radius: 0px;
     --phone-case-radius: 0px;
     width: var(--phone-screen-width);
+    max-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     margin-inline: 0;
     gap: 0;
     transform-origin: top left;
@@ -1133,6 +1142,8 @@
   }
 
   .phone-shell-wrap .phone-case {
+    width: 100%;
+    height: 100%;
     padding: 0;
     border: 0;
     background: transparent;
@@ -1145,6 +1156,8 @@
   }
 
   .phone-shell-wrap .phone-frame {
+    width: 100%;
+    height: 100%;
     padding: 0;
     background: transparent;
     box-shadow: none;
@@ -1155,9 +1168,18 @@
     display: none;
   }
 
+  .phone-shell {
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: 100% !important;
+    max-height: 100dvh !important;
+  }
+
   .app-root.splash-root {
     width: 100vw;
-    height: 100lvh;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     margin: 0;
     padding: 0;
     display: flex;
